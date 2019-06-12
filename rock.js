@@ -22,16 +22,57 @@ var brtpink=["#DDF0FF","#E1F4EB","#EEF7E3","#FFF2E0","#FFEBEA"];
 var brtbrown=["#E8DBBF","#E8E1D0","#FFE8B5","#FFF8E4","#FFFDF7"];
 var brtpurple=["#D4B2CC","#EBCADD","#FFDEEB","#FFEDF5","#FFFFFF"];
 var brtred=["#E3505B","#D9383D","#E3505B","#E2837D","#EFC9BC"];
-
-
 var clRock=[cgrey,cGreen,cRed,cblue,cbrown,cyellow,cdblue];
+
+//background theme==============================
+var Color0=["#002D2E","#006466","#009496","#00CED1","#00FBFF"];
+var Color1=["#C3B8B3","#B1AEAF","#C3B8BC","#C4B1AC","#E2C8B8"];
+var Color2=["#8E9BD4","#757EAD","#8893C8","#5C6389","#32354A"];
+var Color3=["#DBC6BA","#BBE8BA","#F2F1F0","#F2C1F0","#BCC3E8"];
+var Color4=["#E4DFD6","#B8DAE2","#8E6E72","#B59382","#E6DBC3"];
+var Color5=["#FF8893","#FC737F","#F35F6A","#E2515A","#DD3E49"];
+var Color6=["#5C5A61","#8C807D","#B29488","#D69787","#FF9688"];
+var Color7=["#030C0D","#0A2426","#103C40","#8DA4A6","#CEEFF2"];
+
+
+var theme=[Color0,Color1,Color2,Color3,Color4,Color5,Color6,Color7];
+
+
 
 var min=30;
 var range=10;
 var hit=false;
 var j=0;
 var maxRks=3;
+var noBlt=40;
+var bTime=50;
 var score=0;
+var back=[mountain];
+var xm1=100;
+var xm2=150;
+var ym=250;
+var dx1=0.2;
+var dx2=0.3;
+var backIndex=0;
+var v;
+var cimg=new Image();
+cimg.src="img src/tank1.jpg" ;
+cimg.imgAlign="center";
+
+var i=0;
+var blt=new Array();
+var k=0;
+var X=c.width/2;
+var head=0;
+
+var rks=new Array();
+
+var be;
+var r;
+var diffIn;
+
+var ColorS=new Array();
+
 
 //=======================rocks==============================================
 
@@ -142,13 +183,6 @@ var rocks=function(){
 //======================================Bullets===========================================
 
 
-var i=0;
-var blt=new Array();
-var k=0;
-var X=c.width/2;
-var head=0;
-
-var rks=new Array();
 
 var bullet=function(){
     this.x=X;
@@ -172,14 +206,14 @@ var bullet=function(){
 }
 
 
-setInterval(cblt,60)
+
 
 function cblt(){
-    if(i==40){
-               
+    if(i>=noBlt){
+    
         blt[head]=new bullet();
 
-      (head<39)?head++:head=0;
+      (head<noBlt-1)?head++:head=0;
 
     }else{
     blt[i]=new bullet();
@@ -187,7 +221,7 @@ function cblt(){
     }
 }
 
-var r=setInterval(cRock,5000);
+
 
 function cRock(){
 
@@ -199,39 +233,34 @@ function cRock(){
 
 
 //======================animate============================
-//background theme==============================
-
-var back=[mountain];
-var xm1=100;
-var xm2=150;
-var ym=250;
-var dx1=0.2;
-var dx2=0.3;
-var backIndex=0;
-
-
-var v;
-var cimg=new Image();
-cimg.src="img src/tank1.jpg" ;
-cimg.imgAlign="center";
-
 
 
 
 function animate(){
     v=requestAnimationFrame(animate);
     cdraw.clearRect(0,0,c.width,c.height);
+    cdraw.setTransform(1,0,0,1,0,0);
+    if(k%400==0){
+        var tm=theme[Math.floor(Math.random()*theme.length)];
+        for(p=0;p<5;++p){
+            ColorS[p]=tm[Math.floor(Math.random()*tm.length)];
+            console.log("color changed");
+        }
+    }
 
-    cdraw.beginPath();
-    cdraw.fillStyle=crtGradient(c.width/2,0,200,550,brtpink);
+    var cl=cdraw.createLinearGradient(0,c.height,c.width,c.height);
+cl.addColorStop(0.2,ColorS[0])
+cl.addColorStop(0.4,ColorS[1])
+cl.addColorStop(0.6,ColorS[2])
+cl.addColorStop(0.8,ColorS[3])
+cl.addColorStop(1,ColorS[4])
+    cdraw.fillStyle=cl;
     cdraw.fillRect(0,0,c.width,550);
      
         back[backIndex]();
 
-
-
     if(j>maxRks){
-        clearInterval(r);
+       clearInterval(r);
     }
 
         for(p=0;p<j;++p){
@@ -241,8 +270,6 @@ function animate(){
             }
 
         }
-    
-
     for(h=0;h<j;h++){
      cdraw.setTransform(1,0,0,1,0,0);
         rks[h].update();
@@ -346,6 +373,7 @@ function checkCrash(){
             //cdraw.fill();
             
             cancelAnimationFrame(v);
+            
             cdraw.beginPath();
         cdraw.setTransform(1,0,0,1,c.width/2,c.height/2);
         cdraw.beginPath();
@@ -373,10 +401,11 @@ function hitDetect(){
         var d=disBtw(blt[l].x,blt[l].y,rks[m].x,rks[m].y);
         
         if(d<=blt[l].radius+rks[m].size+rks[m].ex+5){
-            console.log("hit Detected");
+           // console.log("hit Detected");
            if(rks[m].tag>0) rks[m].tag--;
             cdraw.beginPath();
             cdraw.arc(blt[l].x,blt[l].y,100,0,Math.PI*2,false);
+            cdraw.lineWidth=3;
             cdraw.strokeStyle="red";
             cdraw.stroke();
 
@@ -384,6 +413,7 @@ function hitDetect(){
                 cdraw.beginPath();
                 cdraw.moveTo(blt[l].x,blt[l].y);
                 cdraw.lineTo(blt[l].x-100+(Math.random()*200),blt[l].y-100+(Math.random()*200))
+                cdraw.lineWidth=3;
                 cdraw.strokeStyle="red";
                 cdraw.stroke();
             }
@@ -391,7 +421,7 @@ function hitDetect(){
             
 
             blt[l]=null;
-            console.log(blt[l]);
+           // console.log(blt[l]);
 
             score++;
             Scoreboard();
@@ -407,6 +437,23 @@ function hitDetect(){
     
 }
 
+function difficulty(){
+
+    if(min<80){
+    min+=20;
+    range+=10;
+    }
+    if(maxRks<8)maxRks++;
+   
+    if(bTime>30){
+    clearInterval(be);
+    noBlt+=10;
+    bTime-=6;
+    be=setInterval(cblt,bTime);
+    console.log("i worked");
+    }
+
+}
 
 function disBtw(x1,y1,x2,y2){
     return Math.sqrt(Math.pow(x1-x2,2)+Math.pow(y1-y2,2));
@@ -426,7 +473,6 @@ document.addEventListener("keydown",function(e){
    
 });
 
-//animate();
 
 
 
@@ -436,7 +482,7 @@ control.width=400;
 control.height=900;
 
 var ctrl=control.getContext('2d');
-var Color3=["#F25252","#F25252","#6FF26B","#0597F2","#F25252"];
+var Color3=["#0F8C69","#10B0ED","#04D99D","#04BF8A","#0F8C69"];
 
 
 var bkcl=ctrl.createLinearGradient(0,0,control.width/2,control.height/4);
@@ -448,26 +494,62 @@ bkcl.addColorStop(1,Color3[4])
 ctrl.fillStyle=bkcl;
 ctrl.fillRect(0,0,control.width,control.height);
 
+ctrl.font="bold 50px fantasy";
+ctrl.textAlign="center";
+ctrl.fillStyle="black";
+ctrl.fillText("Rocking Tank",control.width/2,100)
+ctrl.fill();
 
 
 ctrl.fillStyle="#004483"
 ctrl.font="bold 40px Comic Sans MS";
-ctrl.fillText("start",control.width/2-80,control.height/2-50,120);
-ctrl.fillText("Controls-",control.width/2-80,control.height/2+100);
+ctrl.fillText("start",control.width/2,control.height/2-50,120);
+
 
 
 
 control.addEventListener("click",function(e){
     if(e.offsetX>=control.width/2-80&&e.offsetX<=control.width/2+50){
         if(e.offsetY<=control.height/2-50&&e.offsetY>=control.height/2-90){
-           cancelAnimationFrame(v);
+           //cancelAnimationFrame(v);
+           clearInterval(r);
+           clearInterval(be);
+           clearInterval(diffIn);
+    
+             
+            min=30;
+            range=10;
+            hit=false;
+            j=0;
+            maxRks=3;
+            noBlt=40;
+            bTime=50;
+            score=0;
+            xm1=100;
+            xm2=150;
+            ym=250;
+            dx1=0.2;
+            dx2=0.3;
+            backIndex=0;
+            i=0;
+            blt=new Array();
+            k=0;
+            X=c.width/2;
+            head=0;
+            rks=new Array();
 
+            be=setInterval(cblt,bTime);
+            r=setInterval(cRock,5000);
+            diffIn=setInterval(difficulty,20000);
+
+            Scoreboard();
             requestAnimationFrame(animate);
 
             
     }
   }
-})
+});
+
 
 
 
@@ -512,6 +594,7 @@ sb.fillText("Score",100,300,130);
 sb.fillText(score,100,400);
 sb.fillText("HighScore",100,500);
 sb.fillText(highScore,100,600);
-console.log("m working")
+
 }
 
+//animate();
